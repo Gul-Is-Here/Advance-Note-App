@@ -7,9 +7,11 @@ import 'package:note_app/widgets/note_card.dart';
 class FavoriteNotesView extends StatelessWidget {
   FavoriteNotesView({super.key});
   final ThemeController themeController = Get.find();
+
   @override
   Widget build(BuildContext context) {
-    final isDark = Get.isDarkMode;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final NoteController noteController = Get.find<NoteController>();
 
     return Obx(() {
@@ -17,22 +19,33 @@ class FavoriteNotesView extends StatelessWidget {
           noteController.notes.where((note) => note.isFavorite).toList();
 
       return Scaffold(
+        backgroundColor: theme.colorScheme.surface,
         body: CustomScrollView(
           slivers: [
             SliverAppBar(
-              title: const Text("Favorite Notes"),
+              title: Text(
+                "Favorite Notes",
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.appBarTheme.foregroundColor,
+                ),
+              ),
               floating: true,
               snap: true,
               pinned: true,
               expandedHeight: 120,
+              elevation: theme.appBarTheme.elevation,
+              backgroundColor: theme.appBarTheme.backgroundColor,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors:
                           isDark
-                              ? [Colors.grey.shade900, Colors.black]
-                              : [Colors.pink, Colors.deepPurple],
+                              ? [theme.colorScheme.surface, Colors.grey[850]!]
+                              : [
+                                theme.colorScheme.primary,
+                                theme.colorScheme.secondary,
+                              ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -46,7 +59,10 @@ class FavoriteNotesView extends StatelessWidget {
                   child: Center(
                     child: Text(
                       "No favorite notes found",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontSize: 16,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 )

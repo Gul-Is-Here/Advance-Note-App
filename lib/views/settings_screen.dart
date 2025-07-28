@@ -16,25 +16,37 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Get.isDarkMode;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 120,
-            title: const Text("Settings"),
+            title: Text(
+              "Settings",
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.appBarTheme.foregroundColor,
+              ),
+            ),
             floating: true,
             snap: true,
             pinned: true,
+            elevation: theme.appBarTheme.elevation,
+            backgroundColor: theme.appBarTheme.backgroundColor,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors:
                         isDark
-                            ? [Colors.grey.shade900, Colors.black]
-                            : [Colors.pink, Colors.deepPurple],
+                            ? [theme.colorScheme.surface, Colors.grey[850]!]
+                            : [
+                              theme.colorScheme.primary,
+                              theme.colorScheme.secondary,
+                            ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -53,27 +65,32 @@ class SettingsScreen extends StatelessWidget {
                 children: [
                   Text(
                     "Preferences",
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 16),
                   Obx(
                     () => Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 4,
+                      shape: theme.cardTheme.shape,
+                      elevation: theme.cardTheme.elevation,
+                      color: theme.cardTheme.color,
                       child: SwitchListTile(
-                        activeColor: isDark ? Colors.white : Colors.pink,
-                        title: const Text('Dark Mode'),
-                        subtitle: const Text('Toggle light/dark theme'),
+                        activeColor: theme.colorScheme.primary,
+                        title: Text(
+                          'Dark Mode',
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                        subtitle: Text(
+                          'Toggle light/dark theme',
+                          style: theme.textTheme.bodyMedium,
+                        ),
                         secondary: Icon(
                           themeController.isDarkMode.value
                               ? Icons.dark_mode
                               : Icons.light_mode,
-                          color: isDark ? Colors.white : Colors.pink,
+                          color: theme.colorScheme.primary,
                         ),
                         value: themeController.isDarkMode.value,
                         onChanged: (_) => themeController.toggleTheme(),
@@ -83,24 +100,29 @@ class SettingsScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   Text(
                     "Utilities",
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.pink,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 16),
                   Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 2,
+                    shape: theme.cardTheme.shape,
+                    elevation: theme.cardTheme.elevation,
+                    color: theme.cardTheme.color,
                     child: ListTile(
                       leading: Icon(
                         Icons.import_export,
-                        color: isDark ? Colors.white : Colors.pink,
+                        color: theme.colorScheme.primary,
                       ),
-                      title: const Text('Export Notes'),
-                      subtitle: const Text('Save notes as .json file'),
+                      title: Text(
+                        'Export Notes',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                      subtitle: Text(
+                        'Save notes as .json file',
+                        style: theme.textTheme.bodyMedium,
+                      ),
                       onTap: _exportNotes,
                     ),
                   ),
@@ -126,7 +148,12 @@ class SettingsScreen extends StatelessWidget {
         XFile(file.path),
       ], text: 'Here are my exported notes from NoteApp!');
     } catch (e) {
-      Get.snackbar("Error", "Failed to export notes: ${e.toString()}");
+      Get.snackbar(
+        "Error",
+        "Failed to export notes: ${e.toString()}",
+        backgroundColor: Colors.red.shade400,
+        colorText: Colors.white,
+      );
     }
   }
 }

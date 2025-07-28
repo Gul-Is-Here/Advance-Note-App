@@ -41,10 +41,11 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Get.isDarkMode;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? Colors.black : Colors.white,
+      backgroundColor: theme.colorScheme.surface,
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -56,16 +57,18 @@ class _SplashScreenState extends State<SplashScreen>
               const SizedBox(height: 24),
               Text(
                 'NoteApp',
-                style: TextStyle(
+                style: theme.textTheme.headlineMedium?.copyWith(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Organize your thoughts beautifully',
-                style: TextStyle(color: Colors.grey),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),

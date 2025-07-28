@@ -18,7 +18,7 @@ void main() async {
 
   Get.put<DatabaseHelper>(dbHelper, permanent: true);
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       theme: Themes.lightTheme,
       darkTheme: Themes.darkTheme,
       themeMode: ThemeMode.system,
-      home: SplashScreen(),
+      home: const SplashScreen(),
       initialBinding: AppBindings(),
       debugShowCheckedModeBanner: false,
     );
@@ -57,7 +57,7 @@ class _MainNavigationViewState extends State<MainNavigationView> {
   int _currentIndex = 0;
   final ThemeController themeController = Get.find();
   final List<Widget> _screens = [
-    HomeView(),
+     HomeView(),
     FavoriteNotesView(),
     SettingsScreen(),
   ];
@@ -66,37 +66,42 @@ class _MainNavigationViewState extends State<MainNavigationView> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Get.isDarkMode;
-    // final primaryColor = Theme.of(context).colorScheme.primary;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       extendBody: true,
-      // backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.colorScheme.surface,
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: CurvedNavigationBar(
         key: _bottomNavKey,
         index: _currentIndex,
         height: 60.0,
         backgroundColor: Colors.transparent,
-        color: isDark ? Colors.black : Colors.pinkAccent,
-        buttonBackgroundColor: Colors.white,
+        buttonBackgroundColor: theme.colorScheme.primary,
         animationCurve: Curves.easeInOut,
         animationDuration: const Duration(milliseconds: 300),
         items: [
           Icon(
             Icons.note,
             size: 30,
-            color: _currentIndex == 0 ? Colors.pink : Colors.white,
+            color: _currentIndex == 0
+                ? theme.colorScheme.onPrimary
+                : theme.colorScheme.onSurface,
           ),
           Icon(
             Icons.favorite,
             size: 30,
-            color: _currentIndex == 1 ? Colors.pink : Colors.white,
+            color: _currentIndex == 1
+                ? theme.colorScheme.onPrimary
+                : theme.colorScheme.onSurface,
           ),
           Icon(
             Icons.settings,
             size: 30,
-            color: _currentIndex == 2 ? Colors.pink : Colors.white,
+            color: _currentIndex == 2
+                ? theme.colorScheme.onPrimary
+                : theme.colorScheme.onSurface,
           ),
         ],
         onTap: (index) {
