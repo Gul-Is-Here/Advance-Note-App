@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:note_app/controllers/note_controller.dart';
 import 'package:note_app/controllers/theme_controller.dart';
 import 'package:note_app/data/local/db_helper.dart';
@@ -55,14 +56,19 @@ class MainNavigationView extends StatefulWidget {
 
 class _MainNavigationViewState extends State<MainNavigationView> {
   int _currentIndex = 0;
+  // BannerAd? _bannerAd;
+
   final ThemeController themeController = Get.find();
   final List<Widget> _screens = [
-     HomeView(),
+    HomeView(),
     FavoriteNotesView(),
     SettingsScreen(),
   ];
 
-  final GlobalKey<CurvedNavigationBarState> _bottomNavKey = GlobalKey();
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,43 +78,90 @@ class _MainNavigationViewState extends State<MainNavigationView> {
     return Scaffold(
       extendBody: true,
       backgroundColor: theme.colorScheme.surface,
-      body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: CurvedNavigationBar(
-        key: _bottomNavKey,
-        index: _currentIndex,
-        height: 60.0,
-        backgroundColor: Colors.transparent,
-        buttonBackgroundColor: theme.colorScheme.primary,
-        animationCurve: Curves.easeInOut,
-        animationDuration: const Duration(milliseconds: 300),
-        items: [
-          Icon(
-            Icons.note,
-            size: 30,
-            color: _currentIndex == 0
-                ? theme.colorScheme.onPrimary
-                : theme.colorScheme.onSurface,
-          ),
-          Icon(
-            Icons.favorite,
-            size: 30,
-            color: _currentIndex == 1
-                ? theme.colorScheme.onPrimary
-                : theme.colorScheme.onSurface,
-          ),
-          Icon(
-            Icons.settings,
-            size: 30,
-            color: _currentIndex == 2
-                ? theme.colorScheme.onPrimary
-                : theme.colorScheme.onSurface,
+      body: Column(
+        children: [
+          Expanded(
+            child: IndexedStack(index: _currentIndex, children: _screens),
           ),
         ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
         },
+        backgroundColor: theme.colorScheme.surface.withOpacity(0.95),
+        elevation: 8,
+        selectedItemColor: isDark ? Colors.white : theme.primaryColor,
+        unselectedItemColor: theme.colorScheme.onSurfaceVariant.withOpacity(
+          0.6,
+        ),
+        selectedLabelStyle: theme.textTheme.labelLarge?.copyWith(
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        unselectedLabelStyle: theme.textTheme.labelMedium?.copyWith(
+          fontWeight: FontWeight.w500,
+          fontSize: 12,
+          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+        ),
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.note_alt,
+              size: 28,
+              color:
+                  _currentIndex == 0
+                      ? (isDark ? Colors.white : theme.primaryColor)
+                      : theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+            ),
+            activeIcon: Icon(
+              Icons.note_alt,
+              size: 28,
+              color: isDark ? Colors.white : theme.primaryColor,
+            ),
+            label: 'Notes',
+            tooltip: 'View all notes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.favorite,
+              size: 28,
+              color:
+                  _currentIndex == 1
+                      ? (isDark ? Colors.white : theme.primaryColor)
+                      : theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+            ),
+            activeIcon: Icon(
+              Icons.favorite,
+              size: 28,
+              color: isDark ? Colors.white : theme.primaryColor,
+            ),
+            label: 'Favorites',
+            tooltip: 'View favorite notes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.settings,
+              size: 28,
+              color:
+                  _currentIndex == 2
+                      ? (isDark ? Colors.white : theme.primaryColor)
+                      : theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+            ),
+            activeIcon: Icon(
+              Icons.settings,
+              size: 28,
+              color: isDark ? Colors.white : theme.primaryColor,
+            ),
+            label: 'Settings',
+            tooltip: 'App settings',
+          ),
+        ],
       ),
     );
   }

@@ -21,7 +21,7 @@ class HomeView extends GetView<NoteController> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 60.0),
+        padding: const EdgeInsets.only(bottom: 80.0),
         child: FloatingActionButton(
           backgroundColor: theme.floatingActionButtonTheme.backgroundColor,
           foregroundColor: theme.floatingActionButtonTheme.foregroundColor,

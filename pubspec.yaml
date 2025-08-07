@@ -46,6 +46,8 @@ dependencies:
   pdf: ^3.11.3
   intl: ^0.20.2
   curved_navigation_bar: ^1.0.6
+  google_fonts: ^6.2.1
+  # google_mobile_ads: ^6.0.0
 
 dev_dependencies:
   flutter_test:

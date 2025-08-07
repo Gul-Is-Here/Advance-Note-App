@@ -18,7 +18,6 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       body: CustomScrollView(
@@ -28,16 +27,27 @@ class SettingsScreen extends StatelessWidget {
             title: Text(
               "Settings",
               style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.appBarTheme.foregroundColor,
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    blurRadius: 4,
+                    color: Colors.black.withOpacity(0.2),
+                    offset: const Offset(1, 1),
+                  ),
+                ],
               ),
             ),
             floating: true,
             snap: true,
             pinned: true,
             elevation: theme.appBarTheme.elevation,
-            backgroundColor: theme.appBarTheme.backgroundColor,
+            backgroundColor: Colors.transparent,
             flexibleSpace: FlexibleSpaceBar(
-              background: Container(
+              titlePadding: EdgeInsets.only(bottom: 16),
+              centerTitle: true,
+              background: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors:
@@ -65,67 +75,77 @@ class SettingsScreen extends StatelessWidget {
                 children: [
                   Text(
                     "Preferences",
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
                       color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Obx(
-                    () => Card(
-                      shape: theme.cardTheme.shape,
-                      elevation: theme.cardTheme.elevation,
-                      color: theme.cardTheme.color,
-                      child: SwitchListTile(
-                        activeColor: theme.colorScheme.primary,
+                  _buildAnimatedCard(
+                    child: Obx(
+                      () => SwitchListTile(
+                        activeColor: const Color(0xFFE91E63), // Vibrant pink
+                        inactiveTrackColor: Colors.grey.withOpacity(0.5),
                         title: Text(
                           'Dark Mode',
-                          style: theme.textTheme.bodyLarge,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: theme.colorScheme.onSurface,
+                          ),
                         ),
                         subtitle: Text(
-                          'Toggle light/dark theme',
-                          style: theme.textTheme.bodyMedium,
+                          'Toggle between light and dark theme',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
                         secondary: Icon(
                           themeController.isDarkMode.value
                               ? Icons.dark_mode
                               : Icons.light_mode,
-                          color: theme.colorScheme.primary,
+                          color: const Color(0xFF4A00E0), // Deep purple
                         ),
                         value: themeController.isDarkMode.value,
                         onChanged: (_) => themeController.toggleTheme(),
                       ),
                     ),
+                    theme: theme,
                   ),
                   const SizedBox(height: 32),
                   Text(
                     "Utilities",
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
                       color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Card(
-                    shape: theme.cardTheme.shape,
-                    elevation: theme.cardTheme.elevation,
-                    color: theme.cardTheme.color,
+                  _buildAnimatedCard(
                     child: ListTile(
-                      leading: Icon(
+                      leading: const Icon(
                         Icons.import_export,
-                        color: theme.colorScheme.primary,
+                        color: Color(0xFF4A00E0), // Deep purple
                       ),
                       title: Text(
                         'Export Notes',
-                        style: theme.textTheme.bodyLarge,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.onSurface,
+                        ),
                       ),
                       subtitle: Text(
-                        'Save notes as .json file',
-                        style: theme.textTheme.bodyMedium,
+                        'Save notes as a JSON file',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                      onTap: _exportNotes,
+                      onTap: () => _exportNotes(context),
                     ),
+                    theme: theme,
                   ),
+                  const SizedBox(height: 12),
                 ],
               ),
             ),
@@ -135,25 +155,145 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _exportNotes() async {
+  Widget _buildAnimatedCard({required Widget child, required ThemeData theme}) {
+    return AnimatedOpacity(
+      opacity: 1.0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      child: Card(
+        shape: theme.cardTheme.shape,
+        elevation: theme.cardTheme.elevation,
+        color: theme.cardTheme.color,
+        shadowColor: theme.cardTheme.shadowColor,
+        child: child,
+      ),
+    );
+  }
+
+  Future<void> _exportNotes(BuildContext context) async {
     try {
+      // Show loading dialog
+      Get.dialog(
+        const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation(
+              Color(0xFFE91E63),
+            ), // Vibrant pink
+          ),
+        ),
+        barrierDismissible: false,
+      );
+
       final notes = noteController.notes.map((n) => n.toMap()).toList();
       final jsonStr = const JsonEncoder.withIndent('  ').convert(notes);
 
       final directory = await getTemporaryDirectory();
-      final file = File('${directory.path}/notes_export.json');
+      final file = File(
+        '${directory.path}/notes_export_${DateTime.now().millisecondsSinceEpoch}.json',
+      );
       await file.writeAsString(jsonStr);
+
+      // Close loading dialog
+      Get.back();
 
       await Share.shareXFiles([
         XFile(file.path),
-      ], text: 'Here are my exported notes from NoteApp!');
-    } catch (e) {
+      ], text: 'My exported notes from NoteApp!');
+
       Get.snackbar(
-        "Error",
-        "Failed to export notes: ${e.toString()}",
-        backgroundColor: Colors.red.shade400,
+        'Success',
+        'Notes exported successfully!',
+        backgroundColor: const Color(0xFF4A00E0), // Deep purple
         colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    } catch (e) {
+      Get.back(); // Close loading dialog if open
+      Get.snackbar(
+        'Error',
+        'Failed to export notes: ${e.toString()}',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
       );
     }
+  }
+
+  Future<void> _confirmClearNotes(BuildContext context) async {
+    final theme = Theme.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            backgroundColor: theme.cardTheme.color,
+            title: Text(
+              'Clear All Notes',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            content: Text(
+              'Are you sure you want to delete all notes? This action cannot be undone.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(
+                  'Cancel',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Delete All'),
+              ),
+            ],
+          ),
+    );
+
+    // if (confirmed == true) {
+    //   try {
+    //     await noteController.clearAllNotes();
+    //     Get.snackbar(
+    //       'Success',
+    //       'All notes deleted successfully!',
+    //       backgroundColor: const Color(0xFF4A00E0), // Deep purple
+    //       colorText: Colors.white,
+    //       snackPosition: SnackPosition.BOTTOM,
+    //       margin: const EdgeInsets.all(16),
+    //       borderRadius: 12,
+    //     );
+    //   } catch (e) {
+    //     Get.snackbar(
+    //       'Error',
+    //       'Failed to delete notes: ${e.toString()}',
+    //       backgroundColor: Colors.redAccent,
+    //       colorText: Colors.white,
+    //       snackPosition: SnackPosition.BOTTOM,
+    //       margin: const EdgeInsets.all(16),
+    //       borderRadius: 12,
+    //     );
+    //   }
+    // }z
   }
 }
