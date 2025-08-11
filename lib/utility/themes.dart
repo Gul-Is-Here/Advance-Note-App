@@ -5,15 +5,15 @@ class Themes {
   static final lightTheme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF00FFA3),
+      seedColor: Colors.yellowAccent,
       brightness: Brightness.light,
-      primary: const Color(0xFF00FFA3), // Neon green
+      primary: Colors.yellowAccent, // Neon green
       secondary: Colors.black,
       surface: Colors.grey[100]!, // Lighter surface for modern look
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: Colors.grey[900]!,
-      surfaceTint: const Color(0xFF00FFA3),
+      surfaceTint: Colors.yellowAccent,
       error: Colors.redAccent,
       onSurfaceVariant: Colors.grey[700]!, // Added for better contrast
     ),
@@ -37,7 +37,7 @@ class Themes {
       ),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: Color(0xFF00FFA3), // Neon green
+      backgroundColor: Colors.yellowAccent, // Neon green
       foregroundColor: Colors.white,
       elevation: 6,
       shape: RoundedRectangleBorder(
@@ -52,7 +52,7 @@ class Themes {
     cardTheme: CardThemeData(
       color: Colors.white,
       elevation: 4,
-      shadowColor: const Color(0xFF00FFA3).withOpacity(0.3),
+      shadowColor: Colors.yellowAccent.withOpacity(0.3),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
@@ -86,7 +86,7 @@ class Themes {
       ),
       labelLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w600,
-        color: const Color(0xFF00FFA3), // Neon green
+        color: Colors.yellowAccent, // Neon green
         fontSize: 14,
       ),
       labelMedium: GoogleFonts.poppins(
@@ -96,7 +96,7 @@ class Themes {
       ),
     ),
     buttonTheme: const ButtonThemeData(
-      buttonColor: Color(0xFF00FFA3), // Neon green
+      buttonColor: Colors.amberAccent, // Neon green
       textTheme: ButtonTextTheme.primary,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -116,15 +116,15 @@ class Themes {
   static final darkTheme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF00FFA3),
+      seedColor: Colors.yellowAccent,
       brightness: Brightness.dark,
-      primary: const Color(0xFF00FFA3), // Neon green
+      primary: Colors.yellow, // Neon green
       secondary: Colors.black,
       surface: Colors.grey[900]!,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: Colors.grey[200]!,
-      surfaceTint: const Color(0xFF00FFA3),
+      surfaceTint: Colors.yellowAccent,
       error: Colors.redAccent[200],
       onSurfaceVariant: Colors.grey[400]!, // Added for better contrast
     ),
@@ -148,7 +148,7 @@ class Themes {
       ),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: Color(0xFF00FFA3), // Neon green
+      backgroundColor: Colors.yellow, // Neon green
       foregroundColor: Colors.white,
       elevation: 6,
       shape: RoundedRectangleBorder(
@@ -197,7 +197,7 @@ class Themes {
       ),
       labelLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w600,
-        color: const Color(0xFF00FFA3), // Neon green
+        color: Colors.amberAccent, // Neon green
         fontSize: 14,
       ),
       labelMedium: GoogleFonts.poppins(
@@ -213,7 +213,7 @@ class Themes {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: const Color(0xFF00FFA3), // Neon green
+        backgroundColor: Colors.amberAccent, // Neon green
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         textStyle: GoogleFonts.poppins(

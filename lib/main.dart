@@ -56,8 +56,6 @@ class MainNavigationView extends StatefulWidget {
 
 class _MainNavigationViewState extends State<MainNavigationView> {
   int _currentIndex = 0;
-  // BannerAd? _bannerAd;
-
   final ThemeController themeController = Get.find();
   final List<Widget> _screens = [
     HomeView(),
@@ -66,46 +64,36 @@ class _MainNavigationViewState extends State<MainNavigationView> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    final Color selectedColor = isDark ? Colors.white : Colors.black;
+    final Color unselectedColor =
+        isDark
+            ? theme.colorScheme.onSurfaceVariant.withOpacity(0.6)
+            : Colors.black54;
+
     return Scaffold(
       extendBody: true,
       backgroundColor: theme.colorScheme.surface,
-      body: Column(
-        children: [
-          Expanded(
-            child: IndexedStack(index: _currentIndex, children: _screens),
-          ),
-        ],
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: (index) => setState(() => _currentIndex = index),
         backgroundColor: theme.colorScheme.surface.withOpacity(0.95),
         elevation: 8,
-        selectedItemColor: isDark ? Colors.white : theme.primaryColor,
-        unselectedItemColor: theme.colorScheme.onSurfaceVariant.withOpacity(
-          0.6,
-        ),
+        selectedItemColor: selectedColor,
+        unselectedItemColor: unselectedColor,
         selectedLabelStyle: theme.textTheme.labelLarge?.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 12,
+          color: selectedColor,
         ),
         unselectedLabelStyle: theme.textTheme.labelMedium?.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 12,
-          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+          color: unselectedColor,
         ),
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
@@ -114,16 +102,9 @@ class _MainNavigationViewState extends State<MainNavigationView> {
             icon: Icon(
               Icons.note_alt,
               size: 28,
-              color:
-                  _currentIndex == 0
-                      ? (isDark ? Colors.white : theme.primaryColor)
-                      : theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+              color: _currentIndex == 0 ? selectedColor : unselectedColor,
             ),
-            activeIcon: Icon(
-              Icons.note_alt,
-              size: 28,
-              color: isDark ? Colors.white : theme.primaryColor,
-            ),
+            activeIcon: Icon(Icons.note_alt, size: 28, color: selectedColor),
             label: 'Notes',
             tooltip: 'View all notes',
           ),
@@ -131,16 +112,9 @@ class _MainNavigationViewState extends State<MainNavigationView> {
             icon: Icon(
               Icons.favorite,
               size: 28,
-              color:
-                  _currentIndex == 1
-                      ? (isDark ? Colors.white : theme.primaryColor)
-                      : theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+              color: _currentIndex == 1 ? selectedColor : unselectedColor,
             ),
-            activeIcon: Icon(
-              Icons.favorite,
-              size: 28,
-              color: isDark ? Colors.white : theme.primaryColor,
-            ),
+            activeIcon: Icon(Icons.favorite, size: 28, color: selectedColor),
             label: 'Favorites',
             tooltip: 'View favorite notes',
           ),
@@ -148,16 +122,9 @@ class _MainNavigationViewState extends State<MainNavigationView> {
             icon: Icon(
               Icons.settings,
               size: 28,
-              color:
-                  _currentIndex == 2
-                      ? (isDark ? Colors.white : theme.primaryColor)
-                      : theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+              color: _currentIndex == 2 ? selectedColor : unselectedColor,
             ),
-            activeIcon: Icon(
-              Icons.settings,
-              size: 28,
-              color: isDark ? Colors.white : theme.primaryColor,
-            ),
+            activeIcon: Icon(Icons.settings, size: 28, color: selectedColor),
             label: 'Settings',
             tooltip: 'App settings',
           ),

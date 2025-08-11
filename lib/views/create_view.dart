@@ -59,11 +59,23 @@ class _CreateNoteViewState extends State<CreateNoteView> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Get.back();
+          },
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+        ),
         backgroundColor:
             isDark ? Color(0xff212121) : Theme.of(context).primaryColor,
-        title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
+        title: Text(
+          widget.note == null ? 'New Note' : 'Edit Note',
+          style: TextStyle(color: Colors.black),
+        ),
         actions: [
-          IconButton(icon: const Icon(Icons.save), onPressed: _saveNote),
+          IconButton(
+            icon: const Icon(Icons.save, color: Colors.black),
+            onPressed: _saveNote,
+          ),
         ],
       ),
       body: Column(

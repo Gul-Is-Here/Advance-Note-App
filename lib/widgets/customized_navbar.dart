@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../controllers/theme_controller.dart';
@@ -13,115 +15,130 @@ class MainNavigationView extends StatefulWidget {
   State<MainNavigationView> createState() => _MainNavigationViewState();
 }
 
-class _MainNavigationViewState extends State<MainNavigationView> {
+class _MainNavigationViewState extends State<MainNavigationView>
+    with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   final ThemeController themeController = Get.find();
+
   final List<Widget> _screens = [
     HomeView(),
     FavoriteNotesView(),
     SettingsScreen(),
   ];
 
+  int get _favCount => 0;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       extendBody: true,
       backgroundColor: theme.colorScheme.surface,
       body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          backgroundColor: theme.colorScheme.surface.withOpacity(0.95),
-          elevation: 8,
-          selectedItemColor:
-              isDark ? Colors.white : theme.primaryColor, // Vibrant pink
-          unselectedItemColor: theme.colorScheme.onSurfaceVariant.withOpacity(
-            0.6,
-          ),
-          selectedLabelStyle: theme.textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-          ),
-          unselectedLabelStyle: theme.textTheme.labelMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-            fontSize: 12,
-            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
-          ),
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.note_alt,
-                size: 28,
-                color:
-                    _currentIndex == 0
-                        ? isDark
+
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: theme.colorScheme.outline.withOpacity(0.12),
+                  width: 1,
+                ),
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.surface.withOpacity(isDark ? 0.30 : 0.75),
+                    theme.colorScheme.surface.withOpacity(isDark ? 0.20 : 0.55),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.12),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: NavigationBarTheme(
+                data: NavigationBarThemeData(
+                  height: 64,
+                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                  indicatorColor: theme.colorScheme.primary,
+                  labelTextStyle: WidgetStateProperty.resolveWith((states) {
+                    final selected = states.contains(WidgetState.selected);
+                    final color =
+                        isDark
                             ? Colors.white
-                            : theme.primaryColor
-                        : theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                            : Colors.black; // black for light theme
+                    return theme.textTheme.labelMedium?.copyWith(
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                      letterSpacing: 0.2,
+                      color: color,
+                    );
+                  }),
+                  iconTheme: WidgetStateProperty.resolveWith((states) {
+                    final selected = states.contains(WidgetState.selected);
+                    final color =
+                        isDark
+                            ? (selected
+                                ? Colors.white
+                                : theme.colorScheme.onSurfaceVariant)
+                            : (selected ? Colors.black : Colors.black54);
+                    return IconThemeData(
+                      size: selected ? 28 : 26,
+                      color: color,
+                    );
+                  }),
+                ),
+                child: NavigationBar(
+                  backgroundColor: Colors.transparent,
+                  selectedIndex: _currentIndex,
+                  onDestinationSelected: (index) {
+                    HapticFeedback.selectionClick();
+                    setState(() => _currentIndex = index);
+                  },
+                  destinations: [
+                    const NavigationDestination(
+                      icon: Icon(Icons.note_alt_outlined),
+                      selectedIcon: Icon(Icons.note_alt),
+                      label: 'Notes',
+                      tooltip: 'View all notes',
+                    ),
+                    NavigationDestination(
+                      icon:
+                          _favCount > 0
+                              ? Badge(
+                                label: Text('$_favCount'),
+                                child: const Icon(Icons.favorite_border),
+                              )
+                              : const Icon(Icons.favorite_border),
+                      selectedIcon:
+                          _favCount > 0
+                              ? Badge(
+                                label: Text('$_favCount'),
+                                child: const Icon(Icons.favorite),
+                              )
+                              : const Icon(Icons.favorite),
+                      label: 'Favorites',
+                      tooltip: 'View favorite notes',
+                    ),
+                    const NavigationDestination(
+                      icon: Icon(Icons.settings_outlined),
+                      selectedIcon: Icon(Icons.settings),
+                      label: 'Settings',
+                      tooltip: 'App settings',
+                    ),
+                  ],
+                ),
               ),
-              activeIcon: Icon(
-                Icons.note_alt,
-                size: 28,
-                color:
-                    isDark ? Colors.white : theme.primaryColor, // Vibrant pink
-              ),
-              label: 'Notes',
-              tooltip: 'View all notes',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.favorite,
-                size: 28,
-                color:
-                    _currentIndex == 1
-                        ? isDark
-                            ? Colors.white
-                            : theme
-                                .primaryColor // Vibrant pink
-                        : theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
-              ),
-              activeIcon: Icon(
-                Icons.favorite,
-                size: 28,
-                color:
-                    isDark ? Colors.white : theme.primaryColor, // Vibrant pink
-              ),
-              label: 'Favorites',
-              tooltip: 'View favorite notes',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.settings,
-                size: 28,
-                color:
-                    _currentIndex == 2
-                        ? isDark
-                            ? Colors.white
-                            : theme
-                                .primaryColor // Vibrant pink
-                        : theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
-              ),
-              activeIcon: Icon(
-                Icons.settings,
-                size: 28,
-                color:
-                    isDark ? Colors.white : theme.primaryColor, // Vibrant pink
-              ),
-              label: 'Settings',
-              tooltip: 'App settings',
-            ),
-          ],
+          ),
         ),
       ),
     );

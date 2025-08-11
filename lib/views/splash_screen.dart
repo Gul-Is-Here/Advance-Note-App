@@ -80,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen>
                 const SizedBox(height: 24),
                 // App title with modern typography
                 Text(
-                  'Notes - Offline',
+                  'MyNotes - Offline',
                   style: theme.textTheme.displayLarge?.copyWith(
                     fontSize: 40,
                     fontWeight: FontWeight.w700,

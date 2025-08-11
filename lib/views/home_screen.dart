@@ -27,7 +27,7 @@ class HomeView extends GetView<NoteController> {
           foregroundColor: theme.floatingActionButtonTheme.foregroundColor,
           elevation: 4,
           shape: theme.floatingActionButtonTheme.shape,
-          child: const Icon(Icons.add),
+          child: const Icon(Icons.add, color: Colors.black),
           onPressed: () => Get.to(() => CreateNoteView()),
         ),
       ),
