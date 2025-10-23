@@ -36,6 +36,12 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        
+        <!-- AdMob App ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-2744970719381152~9388191779"/>
+            
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

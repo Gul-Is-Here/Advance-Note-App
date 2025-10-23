@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:note_app/controllers/note_controller.dart';
 import 'package:note_app/controllers/theme_controller.dart';
+import 'package:note_app/models/note_model.dart';
+import 'package:note_app/services/ad_service.dart';
 import 'package:note_app/utility/constants.dart';
 import 'package:note_app/views/create_view.dart';
+import 'package:note_app/widgets/banner_ad_widget.dart';
 import 'package:note_app/widgets/note_card.dart';
 
 class HomeView extends GetView<NoteController> {
@@ -27,7 +30,7 @@ class HomeView extends GetView<NoteController> {
           foregroundColor: theme.floatingActionButtonTheme.foregroundColor,
           elevation: 4,
           shape: theme.floatingActionButtonTheme.shape,
-          child: const Icon(Icons.add, color: Colors.black),
+          child: Icon(Icons.add, color: Colors.white),
           onPressed: () => Get.to(() => CreateNoteView()),
         ),
       ),
@@ -113,7 +116,7 @@ class HomeView extends GetView<NoteController> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: theme.colorScheme.secondary.withOpacity(0.1),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -201,32 +204,88 @@ class HomeView extends GetView<NoteController> {
               return SliverPadding(
                 padding: const EdgeInsets.all(8),
                 sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final note = notesToDisplay[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Dismissible(
-                        key: Key(note.id.toString()),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade400,
-                            borderRadius: BorderRadius.circular(12),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      // Calculate the actual note index considering ads
+                      final adInterval = 3; // Show ad after every 3 notes
+                      final isAdPosition = (index + 1) % (adInterval + 1) == 0;
+
+                      if (isAdPosition && index != 0) {
+                        // Show banner ad
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: BannerAdWidget(),
+                        );
+                      }
+
+                      // Calculate actual note index
+                      final noteIndex = index - (index ~/ (adInterval + 1));
+
+                      if (noteIndex >= notesToDisplay.length) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final note = notesToDisplay[noteIndex];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Dismissible(
+                          key: Key(note.id.toString()),
+                          direction: DismissDirection.endToStart,
+                          confirmDismiss: (direction) async {
+                            return await _showDeleteConfirmation(context, note);
+                          },
+                          background: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.red.shade300,
+                                  Colors.red.shade500,
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.red.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 24),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.delete_rounded,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          child: const Icon(Icons.delete, color: Colors.white),
+                          onDismissed:
+                              (direction) => controller.deleteNote(note.id!),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 100),
+                            child: NoteCard(note: note),
+                          ),
                         ),
-                        onDismissed:
-                            (direction) => controller.deleteNote(note.id!),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 100),
-                          child: NoteCard(note: note),
-                        ),
-                      ),
-                    );
-                  }, childCount: notesToDisplay.length),
+                      );
+                    },
+                    childCount:
+                        notesToDisplay.length + (notesToDisplay.length ~/ 3),
+                  ),
                 ),
               );
             }),
@@ -273,5 +332,149 @@ class HomeView extends GetView<NoteController> {
       default:
         return Icons.category;
     }
+  }
+
+  Future<bool?> _showDeleteConfirmation(BuildContext context, Note note) async {
+    final theme = Theme.of(context);
+
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            backgroundColor: Colors.white,
+            elevation: 24,
+            shadowColor: Colors.black.withOpacity(0.3),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.delete_outline_rounded,
+                    color: Colors.red.shade400,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Delete Note',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Are you sure you want to delete this note?',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        note.title.isEmpty ? 'Untitled Note' : note.title,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        note.category,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'This action cannot be undone.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.red.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade400,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 4,
+                  shadowColor: Colors.red.withOpacity(0.3),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.delete_rounded, size: 18),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Delete',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+    );
   }
 }

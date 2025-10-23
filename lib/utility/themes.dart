@@ -5,39 +5,41 @@ class Themes {
   static final lightTheme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: Colors.yellowAccent,
+      seedColor: const Color(0xFF08C27B),
       brightness: Brightness.light,
-      primary: Colors.yellowAccent, // Neon green
-      secondary: Colors.black,
-      surface: Colors.grey[100]!, // Lighter surface for modern look
+      primary: const Color(0xFF08C27B), // Your green color
+      secondary: const Color(0xFF000B07), // Your dark green/black
+      surface: Colors.grey[50]!, // Light surface for modern look
       onPrimary: Colors.white,
       onSecondary: Colors.white,
-      onSurface: Colors.grey[900]!,
-      surfaceTint: Colors.yellowAccent,
+      onSurface: const Color(0xFF000B07),
+      surfaceTint: const Color(0xFF08C27B),
       error: Colors.redAccent,
-      onSurfaceVariant: Colors.grey[700]!, // Added for better contrast
+      onSurfaceVariant: const Color(
+        0xFF000B07,
+      ), // Using dark color for contrast
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
-      foregroundColor: Colors.white,
+      foregroundColor: const Color(0xFF000B07),
       elevation: 0,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       titleTextStyle: GoogleFonts.poppins(
         fontWeight: FontWeight.w600,
         fontSize: 20,
-        color: Colors.white,
+        color: const Color(0xFF000B07),
         shadows: [
           Shadow(
             blurRadius: 4,
-            color: Colors.black.withOpacity(0.2),
+            color: const Color(0xFF08C27B).withOpacity(0.2),
             offset: const Offset(1, 1),
           ),
         ],
       ),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: Colors.yellowAccent, // Neon green
+      backgroundColor: Color(0xFF08C27B), // Your green color
       foregroundColor: Colors.white,
       elevation: 6,
       shape: RoundedRectangleBorder(
@@ -52,7 +54,7 @@ class Themes {
     cardTheme: CardThemeData(
       color: Colors.white,
       elevation: 4,
-      shadowColor: Colors.yellowAccent.withOpacity(0.3),
+      shadowColor: const Color(0xFF08C27B).withOpacity(0.3),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
@@ -61,48 +63,48 @@ class Themes {
     textTheme: TextTheme(
       displayLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w700,
-        color: Colors.grey[900],
+        color: const Color(0xFF000B07),
         fontSize: 32,
       ),
       titleLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w600,
-        color: Colors.grey[900],
+        color: const Color(0xFF000B07),
         fontSize: 22,
       ),
       bodyLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w500,
-        color: Colors.grey[900],
+        color: const Color(0xFF000B07),
         fontSize: 16,
       ),
       bodyMedium: GoogleFonts.poppins(
         fontWeight: FontWeight.normal,
-        color: Colors.grey[700],
+        color: const Color(0xFF000B07).withOpacity(0.8),
         fontSize: 14,
       ),
       bodySmall: GoogleFonts.poppins(
         fontWeight: FontWeight.normal,
-        color: Colors.grey[600],
+        color: const Color(0xFF000B07).withOpacity(0.6),
         fontSize: 12,
       ),
       labelLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w600,
-        color: Colors.yellowAccent, // Neon green
+        color: const Color(0xFF08C27B), // Your green color
         fontSize: 14,
       ),
       labelMedium: GoogleFonts.poppins(
         fontWeight: FontWeight.w500,
-        color: Colors.grey[700],
+        color: const Color(0xFF000B07).withOpacity(0.7),
         fontSize: 12,
       ),
     ),
     buttonTheme: const ButtonThemeData(
-      buttonColor: Colors.amberAccent, // Neon green
+      buttonColor: Color(0xFF08C27B), // Your green color
       textTheme: ButtonTextTheme.primary,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: const Color(0xFF00FFA3), // Neon green
+        backgroundColor: const Color(0xFF08C27B), // Your green color
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         textStyle: GoogleFonts.poppins(

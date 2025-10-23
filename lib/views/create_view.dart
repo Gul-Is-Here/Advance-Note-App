@@ -5,6 +5,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
 import 'package:note_app/controllers/note_controller.dart';
 import 'package:note_app/models/note_model.dart';
+import 'package:note_app/services/ad_service.dart';
 import 'package:note_app/utility/constants.dart';
 
 class CreateNoteView extends StatefulWidget {
@@ -63,17 +64,23 @@ class _CreateNoteViewState extends State<CreateNoteView> {
           onPressed: () {
             Get.back();
           },
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         backgroundColor:
             isDark ? Color(0xff212121) : Theme.of(context).primaryColor,
         title: Text(
           widget.note == null ? 'New Note' : 'Edit Note',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.save, color: Colors.black),
+            icon: Icon(
+              Icons.save,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             onPressed: _saveNote,
           ),
         ],
@@ -295,6 +302,16 @@ class _CreateNoteViewState extends State<CreateNoteView> {
       );
 
       final controller = Get.find<NoteController>();
+
+      // Show interstitial ad before saving (occasionally)
+      final adService = AdService.instance;
+      if (adService.isInterstitialAdReady) {
+        // Show ad 30% of the time when saving notes
+        if (DateTime.now().millisecond % 10 < 3) {
+          adService.showInterstitialAd();
+        }
+      }
+
       if (widget.note == null) {
         controller.addNote(note);
       } else {

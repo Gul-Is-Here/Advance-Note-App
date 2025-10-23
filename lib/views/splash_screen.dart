@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:note_app/main.dart';
 import 'package:lottie/lottie.dart';
+import 'package:note_app/utility/responsive.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -60,11 +61,16 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final responsive = context.responsive;
 
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [theme.primaryColor, Colors.black]),
+          gradient: LinearGradient(
+            colors: [theme.primaryColor, Colors.black],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
         child: Center(
           child: FadeTransition(
@@ -72,17 +78,25 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Lottie animation with scale effect
+                // Responsive icon with scale effect
                 ScaleTransition(
                   scale: _scaleAnimation,
-                  child: Icon(Icons.note_alt, size: 100, color: Colors.white),
+                  child: Icon(
+                    Icons.note_alt,
+                    size:
+                        responsive.isMobile
+                            ? responsive.wp(25)
+                            : responsive.wp(15),
+                    color: Colors.white,
+                  ),
                 ),
-                const SizedBox(height: 24),
-                // App title with modern typography
+                SizedBox(height: responsive.hp(3)),
+                // App title with responsive typography
                 Text(
                   'MyNotes - Offline',
+                  textAlign: TextAlign.center,
                   style: theme.textTheme.displayLarge?.copyWith(
-                    fontSize: 40,
+                    fontSize: responsive.sp(AppTextSize.heading1 + 8),
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                     letterSpacing: 1.2,
@@ -95,25 +109,29 @@ class _SplashScreenState extends State<SplashScreen>
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                // Subtitle with subtle animation
-                Text(
-                  'Organize your thoughts beautifully',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white70,
-                    letterSpacing: 0.5,
+                SizedBox(height: responsive.hp(1.5)),
+                // Subtitle with responsive text
+                Padding(
+                  padding: responsive.padding(horizontal: 32),
+                  child: Text(
+                    'Organize your thoughts beautifully',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontSize: responsive.sp(AppTextSize.body),
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white70,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 32),
-                // Loading indicator
-                const SizedBox(
-                  width: 40,
-                  height: 40,
+                SizedBox(height: responsive.hp(4)),
+                // Loading indicator with responsive size
+                SizedBox(
+                  width: responsive.isMobile ? 40 : 50,
+                  height: responsive.isMobile ? 40 : 50,
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      Color(0xFFE91E63),
+                      theme.colorScheme.secondary,
                     ),
                     strokeWidth: 3,
                   ),

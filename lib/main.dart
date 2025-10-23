@@ -5,11 +5,13 @@ import 'package:get/get.dart';
 import 'package:note_app/controllers/note_controller.dart';
 import 'package:note_app/controllers/theme_controller.dart';
 import 'package:note_app/data/local/db_helper.dart';
+import 'package:note_app/services/ad_service.dart';
 import 'package:note_app/utility/themes.dart';
 import 'package:note_app/views/favourite_screen.dart';
 import 'package:note_app/views/home_screen.dart';
 import 'package:note_app/views/settings_screen.dart';
 import 'package:note_app/views/splash_screen.dart';
+import 'package:note_app/widgets/banner_ad_widget.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +20,9 @@ void main() async {
   await dbHelper.database;
 
   Get.put<DatabaseHelper>(dbHelper, permanent: true);
+
+  // Initialize AdService early
+  Get.put<AdService>(AdService(), permanent: true);
 
   runApp(const MyApp());
 }
@@ -44,6 +49,7 @@ class AppBindings extends Bindings {
   void dependencies() {
     Get.lazyPut(() => NoteController());
     Get.lazyPut(() => ThemeController());
+    // AdService is already initialized in main()
   }
 }
 
@@ -56,6 +62,7 @@ class MainNavigationView extends StatefulWidget {
 
 class _MainNavigationViewState extends State<MainNavigationView> {
   int _currentIndex = 0;
+  int _navigationCount = 0;
   final ThemeController themeController = Get.find();
   final List<Widget> _screens = [
     HomeView(),
@@ -68,19 +75,38 @@ class _MainNavigationViewState extends State<MainNavigationView> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final Color selectedColor = isDark ? Colors.white : Colors.black;
+    final Color selectedColor =
+        isDark ? Colors.white : theme.colorScheme.primary;
     final Color unselectedColor =
         isDark
             ? theme.colorScheme.onSurfaceVariant.withOpacity(0.6)
-            : Colors.black54;
+            : theme.colorScheme.secondary.withOpacity(0.6);
 
     return Scaffold(
       extendBody: true,
       backgroundColor: theme.colorScheme.surface,
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: Column(
+        children: [
+          Expanded(
+            child: IndexedStack(index: _currentIndex, children: _screens),
+          ),
+          const BannerAdWidget(),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) {
+          _navigationCount++;
+          setState(() => _currentIndex = index);
+
+          // Show interstitial ad after every 7 navigations
+          if (_navigationCount % 7 == 0) {
+            final adService = AdService.instance;
+            if (adService.isInterstitialAdReady) {
+              adService.showInterstitialAd();
+            }
+          }
+        },
         backgroundColor: theme.colorScheme.surface.withOpacity(0.95),
         elevation: 8,
         selectedItemColor: selectedColor,

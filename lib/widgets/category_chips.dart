@@ -44,7 +44,9 @@ class _CategoryChipState extends State<CategoryChip> {
                   )
                 else
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withOpacity(0.15),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -65,7 +67,9 @@ class _CategoryChipState extends State<CategoryChip> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.secondary.withOpacity(0.1),
                   width: 0.5,
                 ),
               ),

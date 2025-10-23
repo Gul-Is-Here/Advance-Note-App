@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:note_app/controllers/note_controller.dart';
 import 'package:note_app/views/create_view.dart';
-import 'package:note_app/widgets/category_chips.dart';
 
 import '../models/note_model.dart';
 
@@ -56,141 +54,212 @@ class _NoteCardState extends State<NoteCard> {
                 duration: const Duration(milliseconds: 400),
               ),
           child: AnimatedScale(
-            scale: _pressed ? 0.98 : 1.0,
-            duration: const Duration(milliseconds: 120),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Stack(
-                children: [
-                  // Glass blur
-                  BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                    child: const SizedBox(height: 200, width: double.infinity),
+            scale: _pressed ? 0.96 : (_hovered ? 1.02 : 1.0),
+            duration: const Duration(milliseconds: 150),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              height: 220,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.white, Colors.grey.shade50],
+                ),
+                border: Border.all(
+                  color:
+                      pinned
+                          ? cs.primary.withOpacity(0.3)
+                          : (_hovered
+                              ? cs.primary.withOpacity(0.2)
+                              : Colors.grey.shade200),
+                  width: pinned ? 2 : 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color:
+                        pinned
+                            ? cs.primary.withOpacity(0.15)
+                            : Colors.black.withOpacity(_hovered ? 0.12 : 0.06),
+                    blurRadius: _hovered ? 20 : 12,
+                    offset: Offset(0, _hovered ? 8 : 4),
+                    spreadRadius: _hovered ? 2 : 0,
                   ),
-
-                  // Glass background + subtle gradient (stronger when pinned/hovered)
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    height: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          cs.surface.withOpacity(pinned ? 0.55 : 0.45),
-                          cs.surface.withOpacity(pinned ? 0.38 : 0.30),
-                        ],
-                      ),
-                      border: Border.all(
-                        color: cs.outline.withOpacity(_hovered ? 0.18 : 0.12),
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(
-                            _hovered ? 0.18 : 0.10,
-                          ),
-                          blurRadius: _hovered ? 16 : 8,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
+                  if (pinned)
+                    BoxShadow(
+                      color: cs.primary.withOpacity(0.08),
+                      blurRadius: 30,
+                      offset: const Offset(0, 15),
+                      spreadRadius: 5,
                     ),
-                    child: Container(
-                      // inner soft highlight
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            cs.primary.withOpacity(pinned ? 0.10 : 0.06),
-                            cs.secondary.withOpacity(pinned ? 0.10 : 0.04),
-                          ],
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Stack(
+                  children: [
+                    // Subtle background pattern for pinned notes
+                    if (pinned)
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                cs.primary.withOpacity(0.02),
+                                cs.primary.withOpacity(0.08),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                      padding: const EdgeInsets.all(18),
+
+                    // Main content
+                    Padding(
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Title row
+                          // Title row with better spacing
                           Row(
                             children: [
-                              if (pinned)
-                                Icon(
-                                  Icons.push_pin,
-                                  size: 18,
-                                  color: cs.secondary,
+                              if (pinned) ...[
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: cs.primary.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.push_pin_rounded,
+                                    size: 16,
+                                    color: cs.primary,
+                                  ),
                                 ),
-                              if (pinned) const SizedBox(width: 8),
+                                const SizedBox(width: 12),
+                              ],
                               Expanded(
                                 child: Text(
                                   widget.note.title.isEmpty
-                                      ? 'Untitled'
+                                      ? 'Untitled Note'
                                       : widget.note.title,
-                                  maxLines: 1,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w800,
                                     color: cs.onSurface,
-                                    height: 1.25,
+                                    height: 1.2,
+                                    letterSpacing: -0.5,
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 16),
 
-                          // Content preview
+                          // Content preview with better styling
                           Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade50,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.grey.shade200,
+                                  width: 1,
+                                ),
+                              ),
                               child: Text(
                                 textContent.isEmpty
-                                    ? 'No content'
+                                    ? 'Tap to add content...'
                                     : textContent,
                                 maxLines: 4,
                                 overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: cs.onSurfaceVariant,
-                                  height: 1.5,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color:
+                                      textContent.isEmpty
+                                          ? cs.onSurfaceVariant.withOpacity(0.6)
+                                          : cs.onSurfaceVariant,
+                                  height: 1.6,
+                                  fontStyle:
+                                      textContent.isEmpty
+                                          ? FontStyle.italic
+                                          : FontStyle.normal,
                                 ),
                               ),
                             ),
                           ),
+                          const SizedBox(height: 16),
 
-                          // Footer (responsive, no overflow)
+                          // Enhanced footer
                           Row(
                             children: [
-                              // Let the chip scale down before overflowing
-                              Flexible(
-                                fit: FlexFit.tight,
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: CategoryChip(
-                                      category: widget.note.category,
+                              // Category chip with improved design
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      cs.primary.withOpacity(0.8),
+                                      cs.primary,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: cs.primary.withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
                                     ),
+                                  ],
+                                ),
+                                child: Text(
+                                  widget.note.category,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
                                   ),
                                 ),
                               ),
                               const Spacer(),
-                              // Date text can shrink/ellipsis on tight widths
-                              Flexible(
-                                child: Text(
-                                  DateFormat(
-                                    'MMM dd, yyyy',
-                                  ).format(widget.note.updatedAt),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.right,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: cs.onSurfaceVariant.withOpacity(
-                                      0.72,
+                              // Enhanced date display
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.schedule_rounded,
+                                      size: 14,
+                                      color: cs.onSurfaceVariant.withOpacity(
+                                        0.7,
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      DateFormat(
+                                        'MMM dd',
+                                      ).format(widget.note.updatedAt),
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                            color: cs.onSurfaceVariant
+                                                .withOpacity(0.8),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -198,59 +267,64 @@ class _NoteCardState extends State<NoteCard> {
                         ],
                       ),
                     ),
-                  ),
 
-                  // Top-right glass buttons
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Row(
-                      children: [
-                        _GlassIconButton(
-                          active: widget.note.isFavorite,
-                          activeColor: cs.secondary,
-                          icon:
-                              widget.note.isFavorite
-                                  ? Icons.favorite_rounded
-                                  : Icons.favorite_outline_rounded,
-                          onTap:
-                              () => controller.toggleFavorite(widget.note.id!),
-                        ),
-                        const SizedBox(width: 6),
-                        _GlassIconButton(
-                          active: widget.note.isPinned,
-                          activeColor: cs.primary,
-                          icon:
-                              widget.note.isPinned
-                                  ? Icons.push_pin_rounded
-                                  : Icons.push_pin_outlined,
-                          onTap: () => controller.togglePin(widget.note.id!),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Corner ribbon when pinned
-                  if (pinned)
+                    // Enhanced top-right action buttons
                     Positioned(
-                      top: 0,
-                      right: 0,
-                      child: ClipPath(
-                        clipper: _CornerClipper(),
+                      top: 12,
+                      right: 12,
+                      child: Row(
+                        children: [
+                          _ModernActionButton(
+                            active: widget.note.isFavorite,
+                            activeColor: Colors.red.shade400,
+                            icon:
+                                widget.note.isFavorite
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_outline_rounded,
+                            onTap:
+                                () =>
+                                    controller.toggleFavorite(widget.note.id!),
+                          ),
+                          const SizedBox(width: 8),
+                          _ModernActionButton(
+                            active: widget.note.isPinned,
+                            activeColor: cs.primary,
+                            icon:
+                                widget.note.isPinned
+                                    ? Icons.push_pin_rounded
+                                    : Icons.push_pin_outlined,
+                            onTap: () => controller.togglePin(widget.note.id!),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Modern corner indicator for pinned notes
+                    if (pinned)
+                      Positioned(
+                        top: 0,
+                        left: 0,
                         child: Container(
-                          width: 34,
-                          height: 34,
-                          color: cs.primary,
-                          alignment: const Alignment(0.6, -0.6),
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [cs.primary, cs.primary.withOpacity(0.7)],
+                            ),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(24),
+                              bottomRight: Radius.circular(20),
+                            ),
+                          ),
                           child: const Icon(
-                            Icons.push_pin_rounded,
-                            size: 14,
+                            Icons.star_rounded,
+                            size: 18,
                             color: Colors.white,
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -260,14 +334,14 @@ class _NoteCardState extends State<NoteCard> {
   }
 }
 
-// Small glass icon button used for favorite/pin
-class _GlassIconButton extends StatelessWidget {
+// Modern action button for the note card
+class _ModernActionButton extends StatelessWidget {
   final bool active;
   final Color activeColor;
   final IconData icon;
   final VoidCallback onTap;
 
-  const _GlassIconButton({
+  const _ModernActionButton({
     required this.active,
     required this.activeColor,
     required this.icon,
@@ -278,44 +352,43 @@ class _GlassIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(999),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Material(
-          color: (active ? activeColor : cs.surface).withOpacity(
-            active ? 0.25 : 0.18,
-          ),
-          shape: const CircleBorder(),
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(6),
-              child: Icon(
-                icon,
-                size: 18,
-                color: active ? activeColor : cs.onSurfaceVariant,
-              ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color:
+                active
+                    ? activeColor.withOpacity(0.15)
+                    : Colors.white.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color:
+                  active ? activeColor.withOpacity(0.3) : Colors.grey.shade300,
+              width: 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color:
+                    active
+                        ? activeColor.withOpacity(0.2)
+                        : Colors.black.withOpacity(0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(
+            icon,
+            size: 18,
+            color: active ? activeColor : cs.onSurfaceVariant,
           ),
         ),
       ),
     );
   }
-}
-
-// Corner ribbon clipper
-class _CornerClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final p = Path();
-    p.lineTo(size.width, 0);
-    p.lineTo(size.width, size.height);
-    p.close();
-    return p;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
