@@ -1,4 +1,3 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -83,76 +82,86 @@ class _MainNavigationViewState extends State<MainNavigationView> {
             : theme.colorScheme.secondary.withOpacity(0.6);
 
     return Scaffold(
-      extendBody: true,
       backgroundColor: theme.colorScheme.surface,
-      body: Column(
+      body: IndexedStack(index: _currentIndex, children: _screens),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: IndexedStack(index: _currentIndex, children: _screens),
-          ),
           const BannerAdWidget(),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          _navigationCount++;
-          setState(() => _currentIndex = index);
+          BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              _navigationCount++;
+              setState(() => _currentIndex = index);
 
-          // Show interstitial ad after every 7 navigations
-          if (_navigationCount % 7 == 0) {
-            final adService = AdService.instance;
-            if (adService.isInterstitialAdReady) {
-              adService.showInterstitialAd();
-            }
-          }
-        },
-        backgroundColor: theme.colorScheme.surface.withOpacity(0.95),
-        elevation: 8,
-        selectedItemColor: selectedColor,
-        unselectedItemColor: unselectedColor,
-        selectedLabelStyle: theme.textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-          color: selectedColor,
-        ),
-        unselectedLabelStyle: theme.textTheme.labelMedium?.copyWith(
-          fontWeight: FontWeight.w500,
-          fontSize: 12,
-          color: unselectedColor,
-        ),
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.note_alt,
-              size: 28,
-              color: _currentIndex == 0 ? selectedColor : unselectedColor,
+              // Show interstitial ad after every 7 navigations
+              if (_navigationCount % 7 == 0) {
+                final adService = AdService.instance;
+                if (adService.isInterstitialAdReady) {
+                  adService.showInterstitialAd();
+                }
+              }
+            },
+            backgroundColor: theme.colorScheme.surface.withOpacity(0.95),
+            elevation: 8,
+            selectedItemColor: selectedColor,
+            unselectedItemColor: unselectedColor,
+            selectedLabelStyle: theme.textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              color: selectedColor,
             ),
-            activeIcon: Icon(Icons.note_alt, size: 28, color: selectedColor),
-            label: 'Notes',
-            tooltip: 'View all notes',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.favorite,
-              size: 28,
-              color: _currentIndex == 1 ? selectedColor : unselectedColor,
+            unselectedLabelStyle: theme.textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w500,
+              fontSize: 12,
+              color: unselectedColor,
             ),
-            activeIcon: Icon(Icons.favorite, size: 28, color: selectedColor),
-            label: 'Favorites',
-            tooltip: 'View favorite notes',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.settings,
-              size: 28,
-              color: _currentIndex == 2 ? selectedColor : unselectedColor,
-            ),
-            activeIcon: Icon(Icons.settings, size: 28, color: selectedColor),
-            label: 'Settings',
-            tooltip: 'App settings',
+            showUnselectedLabels: true,
+            type: BottomNavigationBarType.fixed,
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.note_alt,
+                  size: 28,
+                  color: _currentIndex == 0 ? selectedColor : unselectedColor,
+                ),
+                activeIcon: Icon(
+                  Icons.note_alt,
+                  size: 28,
+                  color: selectedColor,
+                ),
+                label: 'Notes',
+                tooltip: 'View all notes',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.favorite,
+                  size: 28,
+                  color: _currentIndex == 1 ? selectedColor : unselectedColor,
+                ),
+                activeIcon: Icon(
+                  Icons.favorite,
+                  size: 28,
+                  color: selectedColor,
+                ),
+                label: 'Favorites',
+                tooltip: 'View favorite notes',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.settings,
+                  size: 28,
+                  color: _currentIndex == 2 ? selectedColor : unselectedColor,
+                ),
+                activeIcon: Icon(
+                  Icons.settings,
+                  size: 28,
+                  color: selectedColor,
+                ),
+                label: 'Settings',
+                tooltip: 'App settings',
+              ),
+            ],
           ),
         ],
       ),
