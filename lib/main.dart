@@ -5,6 +5,7 @@ import 'package:note_app/controllers/note_controller.dart';
 import 'package:note_app/controllers/theme_controller.dart';
 import 'package:note_app/data/local/db_helper.dart';
 import 'package:note_app/services/ad_service.dart';
+import 'package:note_app/services/shorebird_service.dart';
 import 'package:note_app/utility/themes.dart';
 import 'package:note_app/views/favourite_screen.dart';
 import 'package:note_app/views/home_screen.dart';
@@ -22,6 +23,9 @@ void main() async {
 
   // Initialize AdService early
   Get.put<AdService>(AdService(), permanent: true);
+
+  // Initialize Shorebird Service (the magic updater!)
+  Get.put<ShorebirdService>(ShorebirdService(), permanent: true);
 
   runApp(const MyApp());
 }

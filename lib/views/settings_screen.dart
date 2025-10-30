@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:note_app/controllers/note_controller.dart';
 import 'package:note_app/controllers/theme_controller.dart';
+import 'package:note_app/services/shorebird_service.dart';
+import 'package:note_app/widgets/update_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -122,6 +124,42 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Add Shorebird Update Widget
+                  const UpdateWidget(),
+
+                  _buildAnimatedCard(
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.system_update,
+                        color: Color(0xFF00C853), // Green color
+                      ),
+                      title: Text(
+                        'Check for Updates',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Check for app updates instantly',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      onTap: () {
+                        ShorebirdService.instance.checkForUpdatesManually();
+                        Get.snackbar(
+                          'Checking...',
+                          'Looking for updates...',
+                          duration: const Duration(seconds: 2),
+                        );
+                      },
+                    ),
+                    theme: theme,
+                  ),
+                  const SizedBox(height: 12),
+
                   _buildAnimatedCard(
                     child: ListTile(
                       leading: const Icon(
