@@ -162,7 +162,7 @@ class _MainNavigationViewState extends State<MainNavigationView> {
                   size: 28,
                   color: selectedColor,
                 ),
-                label: 'Settings',
+                label: 'Setting',
                 tooltip: 'App settings',
               ),
             ],
