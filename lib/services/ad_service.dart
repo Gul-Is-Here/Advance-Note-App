@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdService extends GetxService {
   static AdService get instance => Get.find<AdService>();
@@ -9,6 +10,11 @@ class AdService extends GetxService {
   BannerAd? _bannerAd;
   final RxBool _isBannerAdReady = false.obs;
   final RxBool _isInterstitialAdReady = false.obs;
+
+  // Interstitial ads daily limit
+  static const int _maxInterstitialAdsPerDay = 2;
+  int _interstitialAdsShownToday = 0;
+  String _lastAdDate = '';
 
   // Your Ad Unit IDs
   static const String _interstitialAdUnitId =
@@ -29,14 +35,50 @@ class AdService extends GetxService {
   @override
   Future<void> onInit() async {
     super.onInit();
-    await _initializeAds();
-  }
-
-  Future<void> _initializeAds() async {
-    await MobileAds.instance.initialize();
+    // MobileAds.instance.initialize() is now called in main.dart
+    // Load daily ad count from storage
+    await _loadInterstitialAdCount();
+    // Load ads after a small delay to ensure everything is ready
+    await Future.delayed(const Duration(milliseconds: 500));
     await _loadBannerAd();
     await _loadInterstitialAd();
   }
+
+  // Load interstitial ad count for today
+  Future<void> _loadInterstitialAdCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now().toIso8601String().split('T')[0]; // YYYY-MM-DD
+    _lastAdDate = prefs.getString('last_ad_date') ?? '';
+
+    // Reset count if it's a new day
+    if (_lastAdDate != today) {
+      _interstitialAdsShownToday = 0;
+      _lastAdDate = today;
+      await prefs.setString('last_ad_date', today);
+      await prefs.setInt('interstitial_ads_shown', 0);
+    } else {
+      _interstitialAdsShownToday = prefs.getInt('interstitial_ads_shown') ?? 0;
+    }
+  }
+
+  // Save interstitial ad count
+  Future<void> _saveInterstitialAdCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('interstitial_ads_shown', _interstitialAdsShownToday);
+  }
+
+  // Check if we can show interstitial ad today
+  bool get canShowInterstitialAd {
+    return _interstitialAdsShownToday < _maxInterstitialAdsPerDay;
+  }
+
+  // Get remaining interstitial ads for today
+  int get remainingInterstitialAds {
+    return _maxInterstitialAdsPerDay - _interstitialAdsShownToday;
+  }
+
+  // Get total shown today
+  int get interstitialAdsShownToday => _interstitialAdsShownToday;
 
   String get _getInterstitialAdUnitId {
     // Use test ads during development, real ads in production
@@ -88,29 +130,30 @@ class AdService extends GetxService {
   }
 
   Future<void> _loadInterstitialAd() async {
+    print('📢 Loading interstitial ad...');
     await InterstitialAd.load(
       adUnitId: _getInterstitialAdUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          print('Interstitial ad loaded successfully');
+          print('✅ Interstitial ad loaded successfully');
           _interstitialAd = ad;
           _isInterstitialAdReady.value = true;
 
           _interstitialAd!
               .fullScreenContentCallback = FullScreenContentCallback(
             onAdShowedFullScreenContent: (ad) {
-              print('Interstitial ad showed full screen content');
+              print('📺 Interstitial ad showed full screen content');
             },
             onAdDismissedFullScreenContent: (ad) {
-              print('Interstitial ad dismissed');
+              print('👋 Interstitial ad dismissed');
               ad.dispose();
               _isInterstitialAdReady.value = false;
               // Load a new ad for next time
               _loadInterstitialAd();
             },
             onAdFailedToShowFullScreenContent: (ad, error) {
-              print('Interstitial ad failed to show: $error');
+              print('❌ Interstitial ad failed to show: $error');
               ad.dispose();
               _isInterstitialAdReady.value = false;
               _loadInterstitialAd();
@@ -118,7 +161,7 @@ class AdService extends GetxService {
           );
         },
         onAdFailedToLoad: (error) {
-          print('Interstitial ad failed to load: $error');
+          print('❌ Interstitial ad failed to load: $error');
           _isInterstitialAdReady.value = false;
           // Retry loading after a delay
           Future.delayed(const Duration(seconds: 30), () {
@@ -130,10 +173,33 @@ class AdService extends GetxService {
   }
 
   void showInterstitialAd() {
+    print('🎯 showInterstitialAd() called');
+    print(
+      '   - Daily limit check: $_interstitialAdsShownToday/$_maxInterstitialAdsPerDay',
+    );
+    print('   - Can show: $canShowInterstitialAd');
+    print('   - Ad ready: ${_isInterstitialAdReady.value}');
+    print('   - Ad exists: ${_interstitialAd != null}');
+
+    // Check daily limit first
+    if (!canShowInterstitialAd) {
+      print(
+        '❌ Daily interstitial ad limit reached ($_interstitialAdsShownToday/$_maxInterstitialAdsPerDay)',
+      );
+      return;
+    }
+
     if (_isInterstitialAdReady.value && _interstitialAd != null) {
+      print('✅ Showing interstitial ad now...');
       _interstitialAd!.show();
+      // Increment counter and save
+      _interstitialAdsShownToday++;
+      _saveInterstitialAdCount();
+      print(
+        '✅ Interstitial ad shown ($_interstitialAdsShownToday/$_maxInterstitialAdsPerDay today)',
+      );
     } else {
-      print('Interstitial ad not ready');
+      print('⚠️ Interstitial ad not ready, loading new ad...');
       // Load a new ad
       _loadInterstitialAd();
     }

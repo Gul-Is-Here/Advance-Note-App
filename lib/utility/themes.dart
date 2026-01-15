@@ -1,51 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:note_app/utility/app_colors.dart';
 
 class Themes {
   static final lightTheme = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF08C27B),
-      brightness: Brightness.light,
-      primary: const Color(0xFF08C27B), // Your green color
-      secondary: const Color(0xFF000B07), // Your dark green/black
-      surface: Colors.grey[50]!, // Light surface for modern look
-      onPrimary: Colors.white,
-      onSecondary: Colors.white,
-      onSurface: const Color(0xFF000B07),
-      surfaceTint: const Color(0xFF08C27B),
-      error: Colors.redAccent,
-      onSurfaceVariant: const Color(
-        0xFF000B07,
-      ), // Using dark color for contrast
-    ),
+    colorScheme: AppColors.getLightColorScheme(),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
-      foregroundColor: const Color(0xFF000B07),
+      foregroundColor: AppColors.lightOnSurface,
       elevation: 0,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       titleTextStyle: GoogleFonts.poppins(
         fontWeight: FontWeight.w600,
         fontSize: 20,
-        color: const Color(0xFF000B07),
+        color: AppColors.lightOnSurface,
         shadows: [
           Shadow(
             blurRadius: 4,
-            color: const Color(0xFF08C27B).withOpacity(0.2),
+            color: AppColors.primaryGreen.withOpacity(0.2),
             offset: const Offset(1, 1),
           ),
         ],
       ),
     ),
-    floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: Color(0xFF08C27B), // Your green color
-      foregroundColor: Colors.white,
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: AppColors.primaryGreen,
+      foregroundColor: AppColors.lightOnPrimary,
       elevation: 6,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
-      extendedTextStyle: TextStyle(
+      extendedTextStyle: const TextStyle(
         fontFamily: 'Poppins',
         fontWeight: FontWeight.w600,
         letterSpacing: 0.5,
@@ -63,48 +50,48 @@ class Themes {
     textTheme: TextTheme(
       displayLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF000B07),
+        color: AppColors.lightOnSurface,
         fontSize: 32,
       ),
       titleLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w600,
-        color: const Color(0xFF000B07),
+        color: AppColors.lightOnSurface,
         fontSize: 22,
       ),
       bodyLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF000B07),
+        color: AppColors.lightOnSurface,
         fontSize: 16,
       ),
       bodyMedium: GoogleFonts.poppins(
         fontWeight: FontWeight.normal,
-        color: const Color(0xFF000B07).withOpacity(0.8),
+        color: AppColors.lightOnSurfaceVariant,
         fontSize: 14,
       ),
       bodySmall: GoogleFonts.poppins(
         fontWeight: FontWeight.normal,
-        color: const Color(0xFF000B07).withOpacity(0.6),
+        color: AppColors.lightOnSurfaceVariant,
         fontSize: 12,
       ),
       labelLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w600,
-        color: const Color(0xFF08C27B), // Your green color
+        color: AppColors.primaryGreen,
         fontSize: 14,
       ),
       labelMedium: GoogleFonts.poppins(
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF000B07).withOpacity(0.7),
+        color: AppColors.lightOnSurfaceVariant,
         fontSize: 12,
       ),
     ),
-    buttonTheme: const ButtonThemeData(
-      buttonColor: Color(0xFF08C27B), // Your green color
+    buttonTheme: ButtonThemeData(
+      buttonColor: AppColors.primaryGreen,
       textTheme: ButtonTextTheme.primary,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: const Color(0xFF08C27B), // Your green color
+        backgroundColor: AppColors.primaryGreen,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         textStyle: GoogleFonts.poppins(
@@ -117,29 +104,17 @@ class Themes {
 
   static final darkTheme = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: Colors.yellowAccent,
-      brightness: Brightness.dark,
-      primary: Colors.yellow, // Neon green
-      secondary: Colors.black,
-      surface: Colors.grey[900]!,
-      onPrimary: Colors.white,
-      onSecondary: Colors.white,
-      onSurface: Colors.grey[200]!,
-      surfaceTint: Colors.yellowAccent,
-      error: Colors.redAccent[200],
-      onSurfaceVariant: Colors.grey[400]!, // Added for better contrast
-    ),
+    colorScheme: AppColors.getDarkColorScheme(),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
-      foregroundColor: Colors.white,
+      foregroundColor: AppColors.darkOnSurface,
       elevation: 0,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       titleTextStyle: GoogleFonts.poppins(
         fontWeight: FontWeight.w600,
         fontSize: 20,
-        color: Colors.white,
+        color: AppColors.darkOnSurface,
         shadows: [
           Shadow(
             blurRadius: 4,
@@ -149,14 +124,14 @@ class Themes {
         ],
       ),
     ),
-    floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: Colors.yellow, // Neon green
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: AppColors.primaryGreen,
       foregroundColor: Colors.white,
       elevation: 6,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
-      extendedTextStyle: TextStyle(
+      extendedTextStyle: const TextStyle(
         fontFamily: 'Poppins',
         fontWeight: FontWeight.w600,
         letterSpacing: 0.5,
@@ -174,48 +149,48 @@ class Themes {
     textTheme: TextTheme(
       displayLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w700,
-        color: Colors.grey[200],
+        color: AppColors.darkOnSurface,
         fontSize: 32,
       ),
       titleLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w600,
-        color: Colors.grey[200],
+        color: AppColors.darkOnSurface,
         fontSize: 22,
       ),
       bodyLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w500,
-        color: Colors.grey[200],
+        color: AppColors.darkOnSurface,
         fontSize: 16,
       ),
       bodyMedium: GoogleFonts.poppins(
         fontWeight: FontWeight.normal,
-        color: Colors.grey[400],
+        color: AppColors.darkOnSurfaceVariant,
         fontSize: 14,
       ),
       bodySmall: GoogleFonts.poppins(
         fontWeight: FontWeight.normal,
-        color: Colors.grey[500],
+        color: AppColors.darkOnSurfaceVariant,
         fontSize: 12,
       ),
       labelLarge: GoogleFonts.poppins(
         fontWeight: FontWeight.w600,
-        color: Colors.amberAccent, // Neon green
+        color: AppColors.primaryGreen,
         fontSize: 14,
       ),
       labelMedium: GoogleFonts.poppins(
         fontWeight: FontWeight.w500,
-        color: Colors.grey[400],
+        color: AppColors.darkOnSurfaceVariant,
         fontSize: 12,
       ),
     ),
-    buttonTheme: const ButtonThemeData(
-      buttonColor: Color(0xFF00FFA3), // Neon green
+    buttonTheme: ButtonThemeData(
+      buttonColor: AppColors.primaryGreen,
       textTheme: ButtonTextTheme.primary,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: Colors.amberAccent, // Neon green
+        backgroundColor: AppColors.primaryGreen,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         textStyle: GoogleFonts.poppins(

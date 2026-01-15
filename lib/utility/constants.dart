@@ -5,6 +5,6 @@ class AppConstants {
     'Work',
     'Personal',
     'Ideas',
-    'Important'
+    'Todo',
   ];
 }

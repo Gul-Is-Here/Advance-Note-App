@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:note_app/controllers/note_controller.dart';
 import 'package:note_app/controllers/theme_controller.dart';
+import 'package:note_app/controllers/folder_controller.dart';
 import 'package:note_app/data/local/db_helper.dart';
 import 'package:note_app/services/ad_service.dart';
 import 'package:note_app/services/shorebird_service.dart';
+import 'package:note_app/services/lock_service.dart'; // 🔒 NEW
+import 'package:note_app/services/notification_service.dart'; // 🔔 NEW
 import 'package:note_app/utility/themes.dart';
 import 'package:note_app/views/favourite_screen.dart';
 import 'package:note_app/views/home_screen.dart';
@@ -16,16 +20,28 @@ import 'package:note_app/widgets/banner_ad_widget.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // CRITICAL: Initialize Google Mobile Ads FIRST before anything else
+  await MobileAds.instance.initialize();
+
   final dbHelper = DatabaseHelper();
   await dbHelper.database;
 
   Get.put<DatabaseHelper>(dbHelper, permanent: true);
 
-  // Initialize AdService early
+  // Initialize AdService (MobileAds already initialized above)
   Get.put<AdService>(AdService(), permanent: true);
 
   // Initialize Shorebird Service (the magic updater!)
   Get.put<ShorebirdService>(ShorebirdService(), permanent: true);
+
+  // 🔒 Initialize Lock Service
+  Get.put<LockService>(LockService(), permanent: true);
+
+  // 🔔 Initialize Notification Service
+  Get.put<NotificationService>(NotificationService(), permanent: true);
+
+  // 📁 Initialize Folder Controller
+  Get.put<FolderController>(FolderController(), permanent: true);
 
   runApp(const MyApp());
 }
@@ -98,12 +114,13 @@ class _MainNavigationViewState extends State<MainNavigationView> {
               _navigationCount++;
               setState(() => _currentIndex = index);
 
-              // Show interstitial ad after every 7 navigations
-              if (_navigationCount % 7 == 0) {
+              // Show interstitial ad after every 3 navigations (for testing)
+              if (_navigationCount % 3 == 0) {
+                print(
+                  '🎯 Navigation count: $_navigationCount - Attempting to show ad',
+                );
                 final adService = AdService.instance;
-                if (adService.isInterstitialAdReady) {
-                  adService.showInterstitialAd();
-                }
+                adService.showInterstitialAd();
               }
             },
             backgroundColor: theme.colorScheme.surface.withOpacity(0.95),
