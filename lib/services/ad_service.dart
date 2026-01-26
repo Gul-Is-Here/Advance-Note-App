@@ -14,7 +14,6 @@ class AdService extends GetxService {
   // Interstitial ads daily limit
   static const int _maxInterstitialAdsPerDay = 2;
   int _interstitialAdsShownToday = 0;
-  String _lastAdDate = '';
 
   // Your Ad Unit IDs
   static const String _interstitialAdUnitId =
@@ -47,18 +46,37 @@ class AdService extends GetxService {
   // Load interstitial ad count for today
   Future<void> _loadInterstitialAdCount() async {
     final prefs = await SharedPreferences.getInstance();
-    final today = DateTime.now().toIso8601String().split('T')[0]; // YYYY-MM-DD
-    _lastAdDate = prefs.getString('last_ad_date') ?? '';
+    final now = DateTime.now();
 
-    // Reset count if it's a new day
-    if (_lastAdDate != today) {
+    // Calculate 5 AM today
+    final resetTime = DateTime(now.year, now.month, now.day, 5, 0, 0);
+
+    // If current time is before 5 AM, use yesterday's 5 AM as the reset point
+    final lastResetTime =
+        now.isBefore(resetTime)
+            ? resetTime.subtract(const Duration(days: 1))
+            : resetTime;
+
+    // Get the last reset timestamp
+    final lastResetTimestamp = prefs.getInt('last_ad_reset_timestamp') ?? 0;
+    final lastReset = DateTime.fromMillisecondsSinceEpoch(lastResetTimestamp);
+
+    // Check if we need to reset (if last reset was before the last 5 AM)
+    if (lastReset.isBefore(lastResetTime)) {
+      print('🔄 Resetting ad count at 5 AM');
       _interstitialAdsShownToday = 0;
-      _lastAdDate = today;
-      await prefs.setString('last_ad_date', today);
+      await prefs.setInt(
+        'last_ad_reset_timestamp',
+        lastResetTime.millisecondsSinceEpoch,
+      );
       await prefs.setInt('interstitial_ads_shown', 0);
     } else {
       _interstitialAdsShownToday = prefs.getInt('interstitial_ads_shown') ?? 0;
     }
+
+    print(
+      '📊 Ad count loaded: $_interstitialAdsShownToday/$_maxInterstitialAdsPerDay shown today',
+    );
   }
 
   // Save interstitial ad count
@@ -130,6 +148,14 @@ class AdService extends GetxService {
   }
 
   Future<void> _loadInterstitialAd() async {
+    // Don't load new ads if daily limit reached
+    if (!canShowInterstitialAd) {
+      print(
+        '🚫 Not loading interstitial ad - daily limit reached ($_interstitialAdsShownToday/$_maxInterstitialAdsPerDay)',
+      );
+      return;
+    }
+
     print('📢 Loading interstitial ad...');
     await InterstitialAd.load(
       adUnitId: _getInterstitialAdUnitId,
@@ -149,24 +175,33 @@ class AdService extends GetxService {
               print('👋 Interstitial ad dismissed');
               ad.dispose();
               _isInterstitialAdReady.value = false;
-              // Load a new ad for next time
-              _loadInterstitialAd();
+              // Only load a new ad if we haven't reached the limit
+              if (canShowInterstitialAd) {
+                _loadInterstitialAd();
+              } else {
+                print('🚫 Not loading new ad - daily limit reached');
+              }
             },
             onAdFailedToShowFullScreenContent: (ad, error) {
               print('❌ Interstitial ad failed to show: $error');
               ad.dispose();
               _isInterstitialAdReady.value = false;
-              _loadInterstitialAd();
+              // Only retry if we haven't reached the limit
+              if (canShowInterstitialAd) {
+                _loadInterstitialAd();
+              }
             },
           );
         },
         onAdFailedToLoad: (error) {
           print('❌ Interstitial ad failed to load: $error');
           _isInterstitialAdReady.value = false;
-          // Retry loading after a delay
-          Future.delayed(const Duration(seconds: 30), () {
-            _loadInterstitialAd();
-          });
+          // Only retry if we haven't reached the limit
+          if (canShowInterstitialAd) {
+            Future.delayed(const Duration(seconds: 30), () {
+              _loadInterstitialAd();
+            });
+          }
         },
       ),
     );
